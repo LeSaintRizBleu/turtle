@@ -25,6 +25,12 @@ void yyerror(struct ast *ret, const char *);
 %token <name>     NAME        "name"
 
 %token            KW_FORWARD  "forward"
+%token            KW_FW       "fw"
+
+%token            KW_BACKWARD "backward"
+%token            KW_BW       "bw"
+
+
 /* TODO: add other tokens */
 
 %type <node> unit cmds cmd expr

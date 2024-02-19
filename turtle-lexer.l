@@ -9,11 +9,12 @@
 
 %option warn 8bit nodefault noyywrap
 
-DIGIT [0-9]
+DOUBLE (?:0|[1-9]+[0-9]*)?\.?[0-9]*(?:[eE][+-]?)?[0-9]*
 
 %%
 
-{DIGIT}+              { yylval.value = strtod(yytext, NULL); return VALUE; }
+{DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }       
+#.*$                  /* Comment */
 
 [\n\t ]*              /* whitespace */
 .                     { fprintf(stderr, "Unknown token: '%s'\n", yytext); exit(EXIT_FAILURE); }
