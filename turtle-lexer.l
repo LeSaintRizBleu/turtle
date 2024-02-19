@@ -24,8 +24,8 @@ blue                  { return KW_BLUE;}
 cyan                  { return KW_CYAN;}
 magenta               { return KW_MAGENTA;}
 yellow                { return KW_YELLOW;}
-black                 { return KW_BLACK;}
 gray                  { return KW_GRAY;}
+black                 { return KW_BLACK;}
 white                 { return KW_WHITE;}
 
 [\n\t ]*              /* whitespace */
