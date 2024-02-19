@@ -23,12 +23,11 @@ void yyerror(struct ast *ret, const char *);
 
 %token <value>    VALUE       "value"
 %token <name>     NAME        "name"
+%token <name>     COMMENT     "comment"
 
 %token            KW_FORWARD  "forward"
-%token            KW_FW       "fw"
 
 %token            KW_BACKWARD "backward"
-%token            KW_BW       "bw"
 
 
 /* TODO: add other tokens */
