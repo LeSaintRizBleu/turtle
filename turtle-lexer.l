@@ -14,7 +14,7 @@ COMMENT \#.*$
 
 %%
 
-{COMMENT}             { yylval.name = strdup(yytext); return COMMENT};
+{COMMENT}             { yylval.name = strdup(yytext); return COMMENT; }
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
 forward|fw            { return KW_FORWARD; }
 backward|bw            { return KW_BACKWARD; }

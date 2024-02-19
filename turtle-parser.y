@@ -32,7 +32,7 @@ void yyerror(struct ast *ret, const char *);
 
 /* TODO: add other tokens */
 
-%type <node> unit cmds cmd expr
+%type <node> unit cmds cmd expr color
 
 %%
 
@@ -47,12 +47,18 @@ cmds:
 
 cmd:
     KW_FORWARD expr   { /* TODO */ }
+    KW_BACKWARD expr   { /* TODO */ }
+    KW_COLOR color   { /* TODO */ }
 ;
 
 expr:
     VALUE             { $$ = make_expr_value($1); }
     /* TODO: add identifier */
 ;
+
+color:
+     expr expr expr {}
+   | KW_RED
 
 %%
 
