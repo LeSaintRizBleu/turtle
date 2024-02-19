@@ -17,7 +17,16 @@ COMMENT \#.*$
 {COMMENT}             { yylval.name = strdup(yytext); return COMMENT; }
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
 forward|fw            { return KW_FORWARD; }
-backward|bw            { return KW_BACKWARD; }
+backward|bw           { return KW_BACKWARD; }
+red                   { return KW_RED; }
+green                 { return KW_GREEN;}
+blue                  { return KW_BLUE;}
+cyan                  { return KW_CYAN;}
+magenta               { return KW_MAGENTA;}
+yellow                { return KW_YELLOW;}
+black                 { return KW_BLACK;}
+gray                  { return KW_GRAY;}
+white                 { return KW_WHITE;}
 
 [\n\t ]*              /* whitespace */
 .                     { fprintf(stderr, "Unknown token: '%s'\n", yytext); exit(EXIT_FAILURE); }
