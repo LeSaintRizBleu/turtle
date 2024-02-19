@@ -26,8 +26,9 @@ void yyerror(struct ast *ret, const char *);
 %token <name>     COMMENT     "comment"
 
 %token            KW_FORWARD  "forward"
-
 %token            KW_BACKWARD "backward"
+
+%token            KW_COLOR    
 
 
 /* TODO: add other tokens */
@@ -47,8 +48,8 @@ cmds:
 
 cmd:
     KW_FORWARD expr   { /* TODO */ }
-    KW_BACKWARD expr   { /* TODO */ }
-    KW_COLOR color   { /* TODO */ }
+    KW_BACKWARD expr  { /* TODO */ }
+    KW_COLOR color    { /* TODO */ }
 ;
 
 expr:
@@ -58,7 +59,15 @@ expr:
 
 color:
      expr expr expr {}
-   | KW_RED
+  |  KW_RED   {}
+  |  KW_GREEN  {}
+  |  KW_BLUE  {}
+  |  KW_CYAN  {}
+  |  KW_MAGENTA  {}
+  |  KW_YELLOW  {}
+  |  KW_BLACK  {}
+  |  KW_GRAY  {}
+  |  KW_WHITE  {}
 
 %%
 
