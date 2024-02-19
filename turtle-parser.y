@@ -30,6 +30,16 @@ void yyerror(struct ast *ret, const char *);
 
 %token            KW_COLOR    
 
+%token            KW_RED
+%token            KW_GREEN
+%token            KW_BLUE
+%token            KW_CYAN
+%token            KW_MAGENTA
+%token            KW_YELLOW
+%token            KW_BLACK
+%token            KW_GRAY
+%token            KW_WHITE
+
 
 /* TODO: add other tokens */
 
