@@ -24,21 +24,37 @@ void yyerror(struct ast *ret, const char *);
 %token <value>    VALUE       "value"
 %token <name>     NAME        "name"
 %token <name>     COMMENT     "comment"
+%token <name>     VAR_NAME    "var_name"
 
 %token            KW_FORWARD  "forward"
 %token            KW_BACKWARD "backward"
+%token            KW_UP       "up"
+%token            KW_DOWN     "down"
+%token            KW_REPEAT   "repeat"
+%token            KW_PRINT    "print"
+%token            KW_RIGHT    "right"
+%token            KW_LEFT     "left"
+%token            KW_HOME     "home"
+%token            KW_SET      "set"
+%token            KW_PROC     "proc"
+%token            KW_CALL     "call"
 
-%token            KW_COLOR    
+%token            KW_SIN      "sin"
+%token            KW_COS      "cos"
+%token            KW_TAN      "tan"
+%token            KW_SQRT     "sqrt"
+%token            KW_RANDOM   "random"
 
-%token            KW_RED
-%token            KW_GREEN
-%token            KW_BLUE
-%token            KW_CYAN
-%token            KW_MAGENTA
-%token            KW_YELLOW
-%token            KW_BLACK
-%token            KW_GRAY
-%token            KW_WHITE
+%token            KW_COLOR    "color"
+%token            KW_RED      "red"
+%token            KW_GREEN    "green"
+%token            KW_BLUE     "blue"
+%token            KW_CYAN     "cyan"
+%token            KW_MAGENTA  "magenta"
+%token            KW_YELLOW   "yellow"
+%token            KW_BLACK    "black"
+%token            KW_GRAY     "gray"
+%token            KW_WHITE    "white"
 
 
 /* TODO: add other tokens */
@@ -69,15 +85,15 @@ expr:
 
 color:
      expr expr expr {}
-  |  KW_RED   {}
-  |  KW_GREEN  {}
-  |  KW_BLUE  {}
-  |  KW_CYAN  {}
-  |  KW_MAGENTA  {}
-  |  KW_YELLOW  {}
-  |  KW_BLACK  {}
-  |  KW_GRAY  {}
-  |  KW_WHITE  {}
+  |  KW_RED         {}
+  |  KW_GREEN       {}
+  |  KW_BLUE        {}
+  |  KW_CYAN        {}
+  |  KW_MAGENTA     {}
+  |  KW_YELLOW      {}
+  |  KW_BLACK       {}
+  |  KW_GRAY        {}
+  |  KW_WHITE       {}
 
 %%
 
