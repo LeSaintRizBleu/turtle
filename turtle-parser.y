@@ -63,6 +63,7 @@ void yyerror(struct ast *ret, const char *);
 
 %left '+' '-'
 %left '*' '/'
+%left UNARY_MINUS
 %left '^'
 
 %%
@@ -79,7 +80,7 @@ cmds:
 cmd:
     KW_FORWARD expr             { /* TODO */ }
   | KW_BACKWARD expr            { /* TODO */ }
-  | KW_COLOR expr expr expr     { /* TODO */ }
+  | KW_COLOR expr ',' expr ',' expr     { /* TODO */ }
   | KW_COLOR KW_RED         {}
   | KW_COLOR KW_GREEN       {}
   | KW_COLOR KW_BLUE        {}
@@ -94,7 +95,7 @@ cmd:
 expr:
     VALUE             { $$ = make_expr_value($1); }
   | VAR_NAME            {}
-  | '-' expr            {}
+  | '-' expr %prec UNARY_MINUS           {}
   | '(' expr ')'        {}
   | expr '+' expr       {}
   | expr '-' expr       {}
