@@ -59,7 +59,11 @@ void yyerror(struct ast *ret, const char *);
 
 /* TODO: add other tokens */
 
-%type <node> unit cmds cmd expr color
+%type <node> unit cmds cmd expr
+
+%left '+' '-'
+%left '*' '/'
+%left '^'
 
 %%
 
@@ -73,27 +77,31 @@ cmds:
 ;
 
 cmd:
-    KW_FORWARD expr   { /* TODO */ }
-    KW_BACKWARD expr  { /* TODO */ }
-    KW_COLOR color    { /* TODO */ }
+    KW_FORWARD expr             { /* TODO */ }
+  | KW_BACKWARD expr            { /* TODO */ }
+  | KW_COLOR expr expr expr     { /* TODO */ }
+  | KW_COLOR KW_RED         {}
+  | KW_COLOR KW_GREEN       {}
+  | KW_COLOR KW_BLUE        {}
+  | KW_COLOR KW_CYAN        {}
+  | KW_COLOR KW_MAGENTA     {}
+  | KW_COLOR KW_YELLOW      {}
+  | KW_COLOR KW_BLACK       {}
+  | KW_COLOR KW_GRAY        {}
+  | KW_COLOR KW_WHITE       {}
 ;
 
 expr:
     VALUE             { $$ = make_expr_value($1); }
-    /* TODO: add identifier */
+  | VAR_NAME            {}
+  | '-' expr            {}
+  | '(' expr ')'        {}
+  | expr '+' expr       {}
+  | expr '-' expr       {}
+  | expr '*' expr       {}
+  | expr '/' expr       {}
+  | expr '^' expr       {}
 ;
-
-color:
-     expr expr expr {}
-  |  KW_RED         {}
-  |  KW_GREEN       {}
-  |  KW_BLUE        {}
-  |  KW_CYAN        {}
-  |  KW_MAGENTA     {}
-  |  KW_YELLOW      {}
-  |  KW_BLACK       {}
-  |  KW_GRAY        {}
-  |  KW_WHITE       {}
 
 %%
 

@@ -10,7 +10,7 @@ set(CMAKE_C_FLAGS "-Wall -std=c99 -O2 -g")
 bison_target(turtle-parser
   turtle-parser.y
   ${CMAKE_CURRENT_BINARY_DIR}/turtle-parser.c
-  COMPILE_FLAGS "-v"
+  COMPILE_FLAGS "-v -Wcounterexamples"
 )
 
 flex_target(turtle-lexer
