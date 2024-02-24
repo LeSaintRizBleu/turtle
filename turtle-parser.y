@@ -90,6 +90,8 @@ cmd:
   | KW_COLOR KW_BLACK       {}
   | KW_COLOR KW_GRAY        {}
   | KW_COLOR KW_WHITE       {}
+  | KW_PROC VAR_NAME '{' cmds '}' {}
+  | KW_REPEAT expr '{' cmds '}' {}
 ;
 
 expr:
