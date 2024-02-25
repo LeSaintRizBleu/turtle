@@ -81,17 +81,17 @@ cmds:
 
 cmd:
     KW_FORWARD expr                     { $$ = make_cmd_simple(CMD_FORWARD, 1, (struct ast_node*[]){$2, NULL, NULL}); }
-  | KW_BACKWARD expr                    { /* TODO */ }
-  | KW_POSITION expr ',' expr           { /* TODO */ }
-  | KW_HEADING expr                     { /* TODO */ }
-  | KW_RIGHT expr                       { /* TODO */ }
-  | KW_LEFT expr                        { /* TODO */ }
-  | KW_PRINT expr                       { /* TODO */ }
+  | KW_BACKWARD expr                    { $$ = make_cmd_simple(CMD_BACKWARD, 1, (struct ast_node*[]){$2, NULL, NULL}); }
+  | KW_POSITION expr ',' expr           { $$ = make_cmd_simple(CMD_POSITION, 2, (struct ast_node*[]){$2, $4, NULL}); }
+  | KW_HEADING expr                     { $$ = make_cmd_simple(CMD_HEADING, 1, (struct ast_node*[]){$2, NULL, NULL}); }
+  | KW_RIGHT expr                       { $$ = make_cmd_simple(CMD_RIGHT, 1, (struct ast_node*[]){$2, NULL, NULL}); }
+  | KW_LEFT expr                        { $$ = make_cmd_simple(CMD_LEFT, 1, (struct ast_node*[]){$2, NULL, NULL}); }
+  | KW_PRINT expr                       { $$ = make_cmd_simple(CMD_PRINT, 1, (struct ast_node*[]){$2, NULL, NULL}); }
 
   
-  | KW_UP                               { /* TODO */ }
-  | KW_DOWN                             { /* TODO */ }
-  | KW_HOME                             { /* TODO */ }
+  | KW_UP                               { $$ = make_cmd_simple(CMD_UP, 0, (struct ast_node*[]){NULL, NULL, NULL}); }
+  | KW_DOWN                             { $$ = make_cmd_simple(CMD_DOWN, 0, (struct ast_node*[]){NULL, NULL, NULL}); }
+  | KW_HOME                             { $$ = make_cmd_simple(CMD_HOME, 0, (struct ast_node*[]){NULL, NULL, NULL}); }
 
   | KW_SET NAME expr                    { /* TODO */ }
   | KW_CALL NAME                        { /* TODO */ }
