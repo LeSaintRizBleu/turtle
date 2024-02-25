@@ -88,7 +88,6 @@ cmd:
   | KW_LEFT expr                        { $$ = make_cmd_simple(CMD_LEFT, 1, (struct ast_node*[]){$2, NULL, NULL}); }
   | KW_PRINT expr                       { $$ = make_cmd_simple(CMD_PRINT, 1, (struct ast_node*[]){$2, NULL, NULL}); }
 
-  
   | KW_UP                               { $$ = make_cmd_simple(CMD_UP, 0, (struct ast_node*[]){NULL, NULL, NULL}); }
   | KW_DOWN                             { $$ = make_cmd_simple(CMD_DOWN, 0, (struct ast_node*[]){NULL, NULL, NULL}); }
   | KW_HOME                             { $$ = make_cmd_simple(CMD_HOME, 0, (struct ast_node*[]){NULL, NULL, NULL}); }
@@ -97,17 +96,44 @@ cmd:
   | KW_CALL NAME                        { /* TODO */ }
   | KW_PROC NAME '{' cmds '}'           { /* TODO */ }
   | KW_REPEAT expr '{' cmds '}'         { /* TODO */ }
-  
-  | KW_COLOR expr ',' expr ',' expr     { /* TODO */ }
-  | KW_COLOR KW_RED                     { /* TODO */ }
-  | KW_COLOR KW_GREEN                   { /* TODO */ }
-  | KW_COLOR KW_BLUE                    { /* TODO */ }
-  | KW_COLOR KW_CYAN                    { /* TODO */ }
-  | KW_COLOR KW_MAGENTA                 { /* TODO */ }
-  | KW_COLOR KW_YELLOW                  { /* TODO */ }
-  | KW_COLOR KW_BLACK                   { /* TODO */ }
-  | KW_COLOR KW_GRAY                    { /* TODO */ }
-  | KW_COLOR KW_WHITE                   { /* TODO */ }
+
+  | KW_COLOR expr ',' expr ',' expr     { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){$2, $4, $6}); }
+  | KW_COLOR KW_RED                     { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){
+                                            make_expr_value(1.0),
+                                            make_expr_value(0.0),
+                                            make_expr_value(0.0)});}
+  | KW_COLOR KW_GREEN                   { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){
+                                            make_expr_value(0.0),
+                                            make_expr_value(1.0),
+                                            make_expr_value(0.0)});}
+  | KW_COLOR KW_BLUE                    { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){
+                                            make_expr_value(0.0),
+                                            make_expr_value(0.0),
+                                            make_expr_value(1.0)});}
+  | KW_COLOR KW_CYAN                    { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){
+                                            make_expr_value(0.0),
+                                            make_expr_value(1.0),
+                                            make_expr_value(1.0)});}
+  | KW_COLOR KW_MAGENTA                 { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){
+                                            make_expr_value(1.0),
+                                            make_expr_value(0.0),
+                                            make_expr_value(1.0)});}
+  | KW_COLOR KW_YELLOW                  { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){
+                                            make_expr_value(1.0),
+                                            make_expr_value(1.0),
+                                            make_expr_value(0.0)});}
+  | KW_COLOR KW_BLACK                   { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){
+                                            make_expr_value(0.0),
+                                            make_expr_value(0.0),
+                                            make_expr_value(0.0)});}
+  | KW_COLOR KW_GRAY                    { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){
+                                            make_expr_value(0.5),
+                                            make_expr_value(0.5),
+                                            make_expr_value(0.5)});}
+  | KW_COLOR KW_WHITE                   { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){
+                                            make_expr_value(1.0),
+                                            make_expr_value(1.0),
+                                            make_expr_value(1.0)});}
 ;
 
 expr:
