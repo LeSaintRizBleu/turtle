@@ -92,10 +92,10 @@ cmd:
   | KW_DOWN                             { $$ = make_cmd_simple(CMD_DOWN, 0, (struct ast_node*[]){NULL, NULL, NULL}); }
   | KW_HOME                             { $$ = make_cmd_simple(CMD_HOME, 0, (struct ast_node*[]){NULL, NULL, NULL}); }
 
-  | KW_SET NAME expr                    { /* TODO */ }
-  | KW_CALL NAME                        { /* TODO */ }
-  | KW_PROC NAME '{' cmds '}'           { /* TODO */ }
-  | KW_REPEAT expr '{' cmds '}'         { /* TODO */ }
+  | KW_SET NAME expr                    { $$ = make_cmd_set($2, $3); }
+  | KW_CALL NAME                        { $$ = make_cmd_call($2); }
+  | KW_PROC NAME '{' cmds '}'           { $$ = make_cmd_proc($2, $4); }
+  | KW_REPEAT expr '{' cmds '}'         { $$ = make_cmd_repeat($2, $4); }
 
   | KW_COLOR expr ',' expr ',' expr     { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){$2, $4, $6}); }
   | KW_COLOR KW_RED                     { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){

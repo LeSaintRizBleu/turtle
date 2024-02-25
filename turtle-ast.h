@@ -73,7 +73,11 @@ struct ast_node *make_cmd_simple(enum ast_cmd cmd, size_t children_count, struct
 struct ast_node *make_expr_binop(char op, struct ast_node* lhs, struct ast_node* rhs);
 struct ast_node *make_expr_unop(char op, struct ast_node* rhs);
 struct ast_node *make_expr_func(enum ast_func func, size_t children_count, struct ast_node* children[AST_CHILDREN_MAX]);
-struct ast_node *make_expr_block(struct ast_node* children);
+struct ast_node *make_expr_block(struct ast_node* child);
+struct ast_node *make_cmd_set(char* name, struct ast_node* child);
+struct ast_node *make_cmd_proc(char* name, struct ast_node* child);
+struct ast_node *make_cmd_call(char* name);
+struct ast_node *make_cmd_repeat(struct ast_node* count, struct ast_node* block);
 
 // root of the abstract syntax tree
 struct ast {
