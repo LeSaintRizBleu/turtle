@@ -109,8 +109,20 @@ struct ast_node *make_cmd_repeat(struct ast_node* count, struct ast_node* block)
   return node;
 }
 
-void ast_destroy(struct ast *self) {
+void ast_node_destroy(struct ast_node* self) {
+    for(size_t i=0; i < self->children_count; ++i) {
+        ast_node_destroy(self->children[i]);
+        free(self->children[i]);
+    }
+    if(self->next) {
+        ast_node_destroy(self->next);
+        free(self->next);
+    }
+}
 
+void ast_destroy(struct ast *self) {
+    ast_node_destroy(self->unit);
+    free(self->unit);
 }
 
 /*
