@@ -144,7 +144,145 @@ void ast_eval(const struct ast *self, struct context *ctx) {
 /*
  * print
  */
+void ast_node_print(const struct ast_node* self) {
+    switch (self->kind) {
+    case KIND_CMD_SET:
+        printf("set %s ", self->u.name);
+        ast_node_print(self->children[0]);
+        printf("\n");
+        break;
+    case KIND_CMD_REPEAT:
+        printf("repeat ");
+        ast_node_print(self->children[0]);
+        printf(" {\n");
+        ast_node_print(self->children[1]);
+        printf("}\n");
+        break;
+    case KIND_CMD_CALL:
+        printf("call %s\n", self->u.name);
+        break;
+    case KIND_CMD_PROC:
+        printf("proc %s {\n", self->u.name);
+        ast_node_print(self->children[0]);
+        printf("}\n");
+        break;
+    case KIND_CMD_BLOCK:
+        printf("KESKESÉ ?\n");
+        break;
+    case KIND_CMD_SIMPLE:
+        switch (self->u.cmd) {
+            case CMD_UP:
+                printf("up\n");
+                break;
+            case CMD_DOWN:
+                printf("down\n");
+                break;
+            case CMD_HOME:
+                printf("home\n");
+                break;
+            case CMD_LEFT:
+                printf("left ");
+                ast_node_print(self->children[0]);
+                printf("\n");
+                break;
+            case CMD_RIGHT:
+                printf("right ");
+                ast_node_print(self->children[0]);
+                printf("\n");
+                break;
+            case CMD_FORWARD:
+                printf("forward ");
+                ast_node_print(self->children[0]);
+                printf("\n");
+                break;
+            case CMD_BACKWARD:
+                printf("backward ");
+                ast_node_print(self->children[0]);
+                printf("\n");
+                break;
+            case CMD_HEADING:
+                printf("heading ");
+                ast_node_print(self->children[0]);
+                printf("\n");
+                break;
+            case CMD_PRINT:
+                printf("print ");
+                ast_node_print(self->children[0]);
+                printf("\n");
+                break;
+            case CMD_POSITION:
+                printf("position ");
+                ast_node_print(self->children[0]);
+                printf(", ");
+                ast_node_print(self->children[1]);
+                printf("\n");
+                break;
+            case CMD_COLOR:
+                printf("color ");
+                ast_node_print(self->children[0]);
+                printf(", ");
+                ast_node_print(self->children[1]);
+                printf(", ");
+                ast_node_print(self->children[2]);
+                printf("\n");
+                break;
+        }
+        break;
+    case KIND_EXPR_VALUE:
+        printf("%lf", self->u.value);
+        break;
+    case KIND_EXPR_NAME:
+        printf("%s", self->u.name);
+        break;
+    case KIND_EXPR_UNOP:
+        printf("%c", self->u.op);
+        ast_node_print(self->children[0]);
+        break;
+    case KIND_EXPR_BINOP:
+        ast_node_print(self->children[0]);
+        printf("%c", self->u.op);
+        ast_node_print(self->children[1]);
+        break;
+    case KIND_EXPR_BLOCK:
+        printf("(");
+        ast_node_print(self->children[0]);
+        printf(")");
+        break;
+    case KIND_EXPR_FUNC:
+        switch (self->u.func) {
+        case FUNC_SIN:
+            printf("sin(");
+            ast_node_print(self->children[0]);
+            printf(")");
+            break;
+        case FUNC_COS:
+            printf("cos(");
+            ast_node_print(self->children[0]);
+            printf(")");
+            break;
+        case FUNC_TAN:
+            printf("tan(");
+            ast_node_print(self->children[0]);
+            printf(")");
+            break;
+        case FUNC_SQRT:
+            printf("sqrt(");
+            ast_node_print(self->children[0]);
+            printf(")");
+            break;
+        case FUNC_RANDOM:
+            printf("random(");
+            ast_node_print(self->children[0]);
+            printf(", ");
+            ast_node_print(self->children[1]);
+            printf(")");
+            break;
+        }
+        break;
+    }
+    if(self->next) ast_node_print(self->next);
+}
 
 void ast_print(const struct ast *self) {
-
+    ast_node_print(self->unit);
 }
