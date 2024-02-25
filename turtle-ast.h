@@ -71,6 +71,7 @@ struct ast_node *make_expr_value(double value);
 struct ast_node *make_expr_name(char* name);
 double make_double(struct ast_node *node);
 double generate_random_number(double min, double max);
+struct ast_node *make_cmd_simple(enum ast_cmd cmd, struct ast_node* param[AST_CHILDREN_MAX]);
 
 // root of the abstract syntax tree
 struct ast {
