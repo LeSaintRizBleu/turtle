@@ -60,7 +60,7 @@ random                { return KW_RANDOM; }
 
 {COMMENT}             { yylval.name = strdup(yytext); return COMMENT; }
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
-{VAR_NAME}            { yylval.name = strdup(yytext); return VAR_NAME; }
+{VAR_NAME}            { yylval.name = strdup(yytext); return NAME; }
 
 [\n\t ]*              /* whitespace */
 .                     { fprintf(stderr, "Unknown token: '%s'\n", yytext); exit(EXIT_FAILURE); }

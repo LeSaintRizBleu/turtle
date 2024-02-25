@@ -16,6 +16,13 @@ struct ast_node *make_expr_value(double value) {
   return node;
 }
 
+struct ast_node* make_expr_name(char* name) {
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_EXPR_NAME;
+  node->u.name = name;
+  return node;
+}
+
 
 void ast_destroy(struct ast *self) {
 

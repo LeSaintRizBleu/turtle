@@ -24,7 +24,6 @@ void yyerror(struct ast *ret, const char *);
 %token <value>    VALUE       "value"
 %token <name>     NAME        "name"
 %token <name>     COMMENT     "comment"
-%token <name>     VAR_NAME    "var_name"
 
 %token            KW_FORWARD  "forward"
 %token            KW_BACKWARD "backward"
@@ -42,6 +41,9 @@ void yyerror(struct ast *ret, const char *);
 %token            KW_CALL     "call"
 
 %token            KW_SIN      "sin"
+%token            KW_PI      "pi"
+%token            KW_SQRT2      "sqrt2"
+%token            KW_SQRT3      "sqrt3"
 %token            KW_COS      "cos"
 %token            KW_TAN      "tan"
 %token            KW_SQRT     "sqrt"
@@ -90,9 +92,9 @@ cmd:
   | KW_DOWN                             { /* TODO */ }
   | KW_HOME                             { /* TODO */ }
 
-  | KW_SET VAR_NAME VALUE               { /* TODO */ }
-  | KW_CALL VAR_NAME                    { /* TODO */ }
-  | KW_PROC VAR_NAME '{' cmds '}'       { /* TODO */ }
+  | KW_SET NAME expr               { /* TODO */ }
+  | KW_CALL NAME                    { /* TODO */ }
+  | KW_PROC NAME '{' cmds '}'       { /* TODO */ }
   | KW_REPEAT expr '{' cmds '}'         { /* TODO */ }
   
   | KW_COLOR expr ',' expr ',' expr     { /* TODO */ }
@@ -109,11 +111,10 @@ cmd:
 
 expr:
     VALUE                               { $$ = make_expr_value($1); }
-  | VAR_NAME                            { $$ = constant($1); }
-  | NAME                                { $$ = constant($1); }
+  | NAME                                { $$ = make_expr_name($1); }
   | COMMENT                             { /* nothing */ }
   | '-' expr %prec UNARY_MINUS          { $$ = -$2; }
-  | '(' expr ')'                        { ($2); }
+  | '(' expr ')'                        { $$ = $2; }
   | expr '+' expr                       { $$ = $1 + $3; }
   | expr '-' expr                       { $$ = $1 - $3; }
   | expr '*' expr                       { $$ = $1 * $3; }
