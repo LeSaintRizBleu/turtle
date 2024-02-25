@@ -69,7 +69,8 @@ struct ast_node {
 // for example:
 struct ast_node *make_expr_value(double value);
 struct ast_node *make_expr_name(char* name);
-
+double make_double(struct ast_node *node);
+double generate_random_number(double min, double max);
 
 // root of the abstract syntax tree
 struct ast {

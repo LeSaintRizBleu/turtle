@@ -47,6 +47,10 @@ tan                   { return KW_TAN; }
 sqrt                  { return KW_SQRT; }
 random                { return KW_RANDOM; }
 
+PI                    { return KW_PI; }
+SQRT2                 { return KW_SQRT2; }
+SQRT3                 { return KW_SQRT3; }
+
 \-                    { return '-'; }
 \+                    { return '+'; }
 \/                    { return '/'; }

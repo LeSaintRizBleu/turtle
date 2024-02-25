@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <math.h>
 
 #include "turtle-ast.h"
 
@@ -41,9 +42,9 @@ void yyerror(struct ast *ret, const char *);
 %token            KW_CALL     "call"
 
 %token            KW_SIN      "sin"
-%token            KW_PI      "pi"
-%token            KW_SQRT2      "sqrt2"
-%token            KW_SQRT3      "sqrt3"
+%token            KW_PI       "pi"
+%token            KW_SQRT2    "sqrt2"
+%token            KW_SQRT3    "sqrt3"
 %token            KW_COS      "cos"
 %token            KW_TAN      "tan"
 %token            KW_SQRT     "sqrt"
@@ -92,9 +93,9 @@ cmd:
   | KW_DOWN                             { /* TODO */ }
   | KW_HOME                             { /* TODO */ }
 
-  | KW_SET NAME expr               { /* TODO */ }
-  | KW_CALL NAME                    { /* TODO */ }
-  | KW_PROC NAME '{' cmds '}'       { /* TODO */ }
+  | KW_SET NAME expr                    { /* TODO */ }
+  | KW_CALL NAME                        { /* TODO */ }
+  | KW_PROC NAME '{' cmds '}'           { /* TODO */ }
   | KW_REPEAT expr '{' cmds '}'         { /* TODO */ }
   
   | KW_COLOR expr ',' expr ',' expr     { /* TODO */ }
@@ -113,18 +114,21 @@ expr:
     VALUE                               { $$ = make_expr_value($1); }
   | NAME                                { $$ = make_expr_name($1); }
   | COMMENT                             { /* nothing */ }
-  | '-' expr %prec UNARY_MINUS          { $$ = -$2; }
+  | '-' expr %prec UNARY_MINUS          { $$ = make_expr_value(-make_double($2)); }
   | '(' expr ')'                        { $$ = $2; }
-  | expr '+' expr                       { $$ = $1 + $3; }
-  | expr '-' expr                       { $$ = $1 - $3; }
-  | expr '*' expr                       { $$ = $1 * $3; }
-  | expr '/' expr                       { $$ = $1 / $3; }
-  | expr '^' expr                       { $$ = $1 ^ $3; }
-  | KW_SIN '(' expr ')'                 { $$ = sin($3); }
-  | KW_COS '(' expr ')'                 { $$ = cos($3); }
-  | KW_TAN '(' expr ')'                 { $$ = tan($3); }
-  | KW_SQRT '(' expr ')'                { $$ = sqrt($3); }
-  | KW_RANDOM '(' expr ',' expr ')'     { $$ = generate_random_number($3, $5); }
+  | expr '+' expr                       { $$ = make_expr_value(make_double($1) + make_double($3)); }
+  | expr '-' expr                       { $$ = make_expr_value(make_double($1) - make_double($3)); }
+  | expr '*' expr                       { $$ = make_expr_value(make_double($1) * make_double($3)); }
+  | expr '/' expr                       { $$ = make_expr_value(make_double($1) / make_double($3)); }
+  | expr '^' expr                       { $$ = make_expr_value(pow(make_double($1), make_double($3))); }
+  | KW_SIN '(' expr ')'                 { $$ = make_expr_value(sin(make_double($3))); }
+  | KW_COS '(' expr ')'                 { $$ = make_expr_value(cos(make_double($3))); }
+  | KW_TAN '(' expr ')'                 { $$ = make_expr_value(tan(make_double($3))); }
+  | KW_SQRT '(' expr ')'                { $$ = make_expr_value(sqrt(make_double($3))); }
+  | KW_RANDOM '(' expr ',' expr ')'     { $$ = make_expr_value(generate_random_number(make_double($3), make_double($5))); }
+  | KW_PI                               { $$ = make_expr_value(3.14159265358979323846); }
+  | KW_SQRT2                            { $$ = make_expr_value(1.41421356237309504880); }
+  | KW_SQRT3                            { $$ = make_expr_value(1.7320508075688772935); }
 ;
 
 %%

@@ -23,6 +23,15 @@ struct ast_node* make_expr_name(char* name) {
   return node;
 }
 
+double make_double(struct ast_node *node) {
+  return node->u.value;
+}
+
+double generate_random_number(double min, double max) {
+  double scale = rand() / (double) RAND_MAX;
+  return min + scale * (max - min);
+}
+
 
 void ast_destroy(struct ast *self) {
 
