@@ -80,7 +80,7 @@ cmds:
 ;
 
 cmd:
-    KW_FORWARD expr                     { /* TODO */ }
+    KW_FORWARD expr                     { $$ = make_cmd_simple(CMD_FORWARD, 1, (struct ast_node*[]){$2, NULL, NULL}); }
   | KW_BACKWARD expr                    { /* TODO */ }
   | KW_POSITION expr ',' expr           { /* TODO */ }
   | KW_HEADING expr                     { /* TODO */ }
@@ -113,19 +113,18 @@ cmd:
 expr:
     VALUE                               { $$ = make_expr_value($1); }
   | NAME                                { $$ = make_expr_name($1); }
-  | COMMENT                             { /* nothing */ }
-  | '-' expr %prec UNARY_MINUS          { $$ = make_expr_value(-make_double($2)); }
-  | '(' expr ')'                        { $$ = $2; }
-  | expr '+' expr                       { $$ = make_expr_value(make_double($1) + make_double($3)); }
-  | expr '-' expr                       { $$ = make_expr_value(make_double($1) - make_double($3)); }
-  | expr '*' expr                       { $$ = make_expr_value(make_double($1) * make_double($3)); }
-  | expr '/' expr                       { $$ = make_expr_value(make_double($1) / make_double($3)); }
-  | expr '^' expr                       { $$ = make_expr_value(pow(make_double($1), make_double($3))); }
-  | KW_SIN '(' expr ')'                 { $$ = make_expr_value(sin(make_double($3))); }
-  | KW_COS '(' expr ')'                 { $$ = make_expr_value(cos(make_double($3))); }
-  | KW_TAN '(' expr ')'                 { $$ = make_expr_value(tan(make_double($3))); }
-  | KW_SQRT '(' expr ')'                { $$ = make_expr_value(sqrt(make_double($3))); }
-  | KW_RANDOM '(' expr ',' expr ')'     { $$ = make_expr_value(generate_random_number(make_double($3), make_double($5))); }
+  | '-' expr %prec UNARY_MINUS          { $$ = make_expr_unop('-', $2); }
+  | '(' expr ')'                        { $$ = make_expr_block($2); }
+  | expr '+' expr                       { $$ = make_expr_binop('+', $1, $3); }
+  | expr '-' expr                       { $$ = make_expr_binop('-', $1, $3); }
+  | expr '*' expr                       { $$ = make_expr_binop('/', $1, $3); }
+  | expr '/' expr                       { $$ = make_expr_binop('*', $1, $3); }
+  | expr '^' expr                       { $$ = make_expr_binop('^', $1, $3); }
+  | KW_SIN '(' expr ')'                 { $$ = make_expr_func(FUNC_SIN, 1, (struct ast_node*[]){$3, NULL, NULL}); }
+  | KW_COS '(' expr ')'                 { $$ = make_expr_func(FUNC_COS, 1, (struct ast_node*[]){$3, NULL, NULL}); }
+  | KW_TAN '(' expr ')'                 { $$ = make_expr_func(FUNC_TAN, 1, (struct ast_node*[]){$3, NULL, NULL}); }
+  | KW_SQRT '(' expr ')'                { $$ = make_expr_func(FUNC_SQRT, 1, (struct ast_node*[]){$3, NULL, NULL}); }
+  | KW_RANDOM '(' expr ',' expr ')'     { $$ = make_expr_func(FUNC_RANDOM, 2, (struct ast_node*[]){$3, $5, NULL}); }
   | KW_PI                               { $$ = make_expr_value(3.14159265358979323846); }
   | KW_SQRT2                            { $$ = make_expr_value(1.41421356237309504880); }
   | KW_SQRT3                            { $$ = make_expr_value(1.7320508075688772935); }
