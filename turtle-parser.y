@@ -28,6 +28,8 @@ void yyerror(struct ast *ret, const char *);
 
 %token            KW_FORWARD  "forward"
 %token            KW_BACKWARD "backward"
+%token            KW_POSITION "position"
+%token            KW_HEADING  "heading"
 %token            KW_UP       "up"
 %token            KW_DOWN     "down"
 %token            KW_REPEAT   "repeat"
@@ -56,9 +58,6 @@ void yyerror(struct ast *ret, const char *);
 %token            KW_GRAY     "gray"
 %token            KW_WHITE    "white"
 
-
-/* TODO: add other tokens */
-
 %type <node> unit cmds cmd expr
 
 %left '+' '-'
@@ -69,41 +68,62 @@ void yyerror(struct ast *ret, const char *);
 %%
 
 unit:
-    cmds              { $$ = $1; ret->unit = $$; }
+    cmds                                { $$ = $1; ret->unit = $$; }
 ;
 
 cmds:
-    cmd cmds          { $1->next = $2; $$ = $1; }
-  | /* empty */       { $$ = NULL; }
+    cmd cmds                            { $1->next = $2; $$ = $1; }
+  | /* empty */                         { $$ = NULL; }
 ;
 
 cmd:
-    KW_FORWARD expr             { /* TODO */ }
-  | KW_BACKWARD expr            { /* TODO */ }
+    KW_FORWARD expr                     { /* TODO */ }
+  | KW_BACKWARD expr                    { /* TODO */ }
+  | KW_POSITION expr ',' expr           { /* TODO */ }
+  | KW_HEADING expr                     { /* TODO */ }
+  | KW_RIGHT expr                       { /* TODO */ }
+  | KW_LEFT expr                        { /* TODO */ }
+  | KW_PRINT expr                       { /* TODO */ }
+
+  
+  | KW_UP                               { /* TODO */ }
+  | KW_DOWN                             { /* TODO */ }
+  | KW_HOME                             { /* TODO */ }
+
+  | KW_SET VAR_NAME VALUE               { /* TODO */ }
+  | KW_CALL VAR_NAME                    { /* TODO */ }
+  | KW_PROC VAR_NAME '{' cmds '}'       { /* TODO */ }
+  | KW_REPEAT expr '{' cmds '}'         { /* TODO */ }
+  
   | KW_COLOR expr ',' expr ',' expr     { /* TODO */ }
-  | KW_COLOR KW_RED         {}
-  | KW_COLOR KW_GREEN       {}
-  | KW_COLOR KW_BLUE        {}
-  | KW_COLOR KW_CYAN        {}
-  | KW_COLOR KW_MAGENTA     {}
-  | KW_COLOR KW_YELLOW      {}
-  | KW_COLOR KW_BLACK       {}
-  | KW_COLOR KW_GRAY        {}
-  | KW_COLOR KW_WHITE       {}
-  | KW_PROC VAR_NAME '{' cmds '}' {}
-  | KW_REPEAT expr '{' cmds '}' {}
+  | KW_COLOR KW_RED                     { /* TODO */ }
+  | KW_COLOR KW_GREEN                   { /* TODO */ }
+  | KW_COLOR KW_BLUE                    { /* TODO */ }
+  | KW_COLOR KW_CYAN                    { /* TODO */ }
+  | KW_COLOR KW_MAGENTA                 { /* TODO */ }
+  | KW_COLOR KW_YELLOW                  { /* TODO */ }
+  | KW_COLOR KW_BLACK                   { /* TODO */ }
+  | KW_COLOR KW_GRAY                    { /* TODO */ }
+  | KW_COLOR KW_WHITE                   { /* TODO */ }
 ;
 
 expr:
-    VALUE             { $$ = make_expr_value($1); }
-  | VAR_NAME            {}
-  | '-' expr %prec UNARY_MINUS           {}
-  | '(' expr ')'        {}
-  | expr '+' expr       {}
-  | expr '-' expr       {}
-  | expr '*' expr       {}
-  | expr '/' expr       {}
-  | expr '^' expr       {}
+    VALUE                               { $$ = make_expr_value($1); }
+  | VAR_NAME                            { $$ = constant($1); }
+  | NAME                                { $$ = constant($1); }
+  | COMMENT                             { /* nothing */ }
+  | '-' expr %prec UNARY_MINUS          { $$ = -$2; }
+  | '(' expr ')'                        { ($2); }
+  | expr '+' expr                       { $$ = $1 + $3; }
+  | expr '-' expr                       { $$ = $1 - $3; }
+  | expr '*' expr                       { $$ = $1 * $3; }
+  | expr '/' expr                       { $$ = $1 / $3; }
+  | expr '^' expr                       { $$ = $1 ^ $3; }
+  | KW_SIN '(' expr ')'                 { $$ = sin($3); }
+  | KW_COS '(' expr ')'                 { $$ = cos($3); }
+  | KW_TAN '(' expr ')'                 { $$ = tan($3); }
+  | KW_SQRT '(' expr ')'                { $$ = sqrt($3); }
+  | KW_RANDOM '(' expr ',' expr ')'     { $$ = generate_random_number($3, $5); }
 ;
 
 %%
