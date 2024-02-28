@@ -1,7 +1,9 @@
 #include "turtle-ast.h"
+#include "hasmap.h"
 
 #include <assert.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -130,7 +132,12 @@ void ast_destroy(struct ast *self) {
  */
 
 void context_create(struct context *self) {
-
+    hashmap_create(&self->procedures);
+    hashmap_create(&self->variables);
+    self->x = 0;
+    self->y = 0;
+    self->up = false;
+    self->angle = 0;
 }
 
 /*

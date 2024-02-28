@@ -1,6 +1,7 @@
 #ifndef TURTLE_AST_H
 #define TURTLE_AST_H
 
+#include "hasmap.h"
 #include <stddef.h>
 #include <stdbool.h>
 
@@ -94,12 +95,13 @@ struct context {
   double angle;
   bool up;
 
-  // TODO: add procedure handling
-  // TODO: add variable handling
+  struct hashmap procedures;
+  struct hashmap variables;
 };
 
 // create an initial context
 void context_create(struct context *self);
+void context_destroy(struct context *self);
 
 // print the tree as if it was a Turtle program
 void ast_print(const struct ast *self);
