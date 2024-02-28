@@ -2,8 +2,8 @@
 #define TURTLE_AST_H
 
 #include "hasmap.h"
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 // simple commands
 enum ast_cmd {
@@ -53,32 +53,37 @@ struct ast_node {
   enum ast_kind kind; // kind of the node
 
   union {
-    enum ast_cmd cmd;   // kind == KIND_CMD_SIMPLE
-    double value;       // kind == KIND_EXPR_VALUE, for literals
-    char op;            // kind == KIND_EXPR_BINOP or kind == KIND_EXPR_UNOP, for operators in expressions
-    char *name;         // kind == KIND_EXPR_NAME, the name of procedures and variables
+    enum ast_cmd cmd; // kind == KIND_CMD_SIMPLE
+    double value;     // kind == KIND_EXPR_VALUE, for literals
+    char op; // kind == KIND_EXPR_BINOP or kind == KIND_EXPR_UNOP, for operators
+             // in expressions
+    char *name; // kind == KIND_EXPR_NAME, the name of procedures and variables
     enum ast_func func; // kind == KIND_EXPR_FUNC, a function
   } u;
 
-  size_t children_count;  // the number of children of the node
-  struct ast_node *children[AST_CHILDREN_MAX];  // the children of the node (arguments of commands, etc)
-  struct ast_node *next;  // the next node in the sequence
+  size_t children_count; // the number of children of the node
+  struct ast_node *children[AST_CHILDREN_MAX]; // the children of the node
+                                               // (arguments of commands, etc)
+  struct ast_node *next;                       // the next node in the sequence
 };
-
 
 // TODO: make some constructors to use in parser.y
 // for example:
 struct ast_node *make_expr_value(double value);
-struct ast_node *make_expr_name(char* name);
-struct ast_node *make_cmd_simple(enum ast_cmd cmd, size_t children_count, struct ast_node* children[AST_CHILDREN_MAX]);
-struct ast_node *make_expr_binop(char op, struct ast_node* lhs, struct ast_node* rhs);
-struct ast_node *make_expr_unop(char op, struct ast_node* rhs);
-struct ast_node *make_expr_func(enum ast_func func, size_t children_count, struct ast_node* children[AST_CHILDREN_MAX]);
-struct ast_node *make_expr_block(struct ast_node* child);
-struct ast_node *make_cmd_set(char* name, struct ast_node* child);
-struct ast_node *make_cmd_proc(char* name, struct ast_node* child);
-struct ast_node *make_cmd_call(char* name);
-struct ast_node *make_cmd_repeat(struct ast_node* count, struct ast_node* block);
+struct ast_node *make_expr_name(char *name);
+struct ast_node *make_cmd_simple(enum ast_cmd cmd, size_t children_count,
+                                 struct ast_node *children[AST_CHILDREN_MAX]);
+struct ast_node *make_expr_binop(char op, struct ast_node *lhs,
+                                 struct ast_node *rhs);
+struct ast_node *make_expr_unop(char op, struct ast_node *rhs);
+struct ast_node *make_expr_func(enum ast_func func, size_t children_count,
+                                struct ast_node *children[AST_CHILDREN_MAX]);
+struct ast_node *make_expr_block(struct ast_node *child);
+struct ast_node *make_cmd_set(char *name, struct ast_node *child);
+struct ast_node *make_cmd_proc(char *name, struct ast_node *child);
+struct ast_node *make_cmd_call(char *name);
+struct ast_node *make_cmd_repeat(struct ast_node *count,
+                                 struct ast_node *block);
 
 // root of the abstract syntax tree
 struct ast {

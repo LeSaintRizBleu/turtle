@@ -67,11 +67,11 @@ bool hashmap_set(struct hashmap *self, char *key, void *data) {
     b = b->next;
   }
   self->count++;
-  if(b) {
-      b->data = data;
-      return false;
+  if (b) {
+    b->data = data;
+    return false;
   } else {
-    struct hashmap_bucket* new = malloc(sizeof(struct hashmap_bucket));
+    struct hashmap_bucket *new = malloc(sizeof(struct hashmap_bucket));
     new->data = data;
     new->key = key;
     new->next = self->bucket_array[index];
