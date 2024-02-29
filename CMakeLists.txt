@@ -27,6 +27,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_executable(turtle
   turtle.c
   turtle-ast.c
+  hasmap.c
   ${BISON_turtle-parser_OUTPUTS}
   ${FLEX_turtle-lexer_OUTPUTS}
 )
