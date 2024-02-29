@@ -155,6 +155,7 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
     hashmap_set(&ctx->variables, self->u.name, *(void **)&val);
     break;
   }
+
   case KIND_CMD_REPEAT: {
     int val = ast_node_eval(self->children[0], ctx);
     for (int i = 0; i < val; ++i) {
@@ -162,6 +163,7 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
     }
     break;
   }
+
   case KIND_CMD_CALL: {
     struct ast_node **proc =
         (struct ast_node **)hashmap_get(&ctx->procedures, self->u.name);
@@ -172,66 +174,130 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
     ast_node_eval(*proc, ctx);
     break;
   }
+
   case KIND_CMD_PROC:
+    hashmap_set(&ctx->procedures, self->u.name, *(void **)&self->children[0]);
     break;
+
   case KIND_CMD_BLOCK:
+    // KESKESÉ ?
     break;
+
   case KIND_CMD_SIMPLE:
     switch (self->u.cmd) {
     case CMD_UP:
       ctx->up = true;
       break;
+
     case CMD_DOWN:
       ctx->up = false;
       break;
+
     case CMD_HOME:
+      ctx->up = false;
       ctx->x = 0;
       ctx->y = 0;
-      ctx->up = false;
       ctx->angle = 0;
+      fprintf(stdout,"MoveTo %lf %lf\n", ctx->x, ctx->y);
       break;
+
     case CMD_LEFT:
+      ctx->angle += self->children[0]->u.value;
       break;
+
     case CMD_RIGHT:
+      ctx->angle -= self->children[0]->u.value;
       break;
+
     case CMD_FORWARD:
+      ctx->x = ctx->x + self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
+      ctx->y = ctx->y + self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
+      if(ctx->up){
+        fprintf(stdout,"LineTo %lf %lf\n", ctx->x, ctx->y);
+      } else {
+        fprintf(stdout,"MoveTo %lf %lf\n", ctx->x, ctx->y);
+      }
       break;
+
     case CMD_BACKWARD:
+      ctx->x = ctx->x - self->children[0]->u.value * cos(ctx->angle * PI / 180.0); 
+      ctx->y = ctx->y - self->children[0]->u.value * cos(ctx->angle * PI / 180.0); 
+      if(ctx->up){
+        fprintf(stdout,"LineTo %lf %lf\n", ctx->x, ctx->y);
+      } else {
+        fprintf(stdout,"MoveTo %lf %lf\n", ctx->x, ctx->y);
+      }
       break;
+
     case CMD_HEADING:
+      ctx->angle = self->children[0]->u.value;
       break;
+
     case CMD_PRINT:
+      fprintf(stderr,"%lf\n",self->children[0]->u.value);
       break;
+
     case CMD_POSITION:
+      ctx->x = self->children[0]->u.value;
+      ctx->y = self->children[1]->u.value;
+      if(ctx->up){
+        fprintf(stdout,"LineTo %lf %lf\n", ctx->x, ctx->y);
+      } else {
+        fprintf(stdout,"MoveTo %lf %lf\n", ctx->x, ctx->y);
+      }
       break;
+
     case CMD_COLOR:
+      fprintf(stdout,"Color %lf %lf %lf\n",self->children[0]->u.value ,self->children[1]->u.value ,self->children[2]->u.value);
       break;
     }
     break;
+
   case KIND_EXPR_VALUE:
     return self->u.value;
+
   case KIND_EXPR_NAME:
     break;
+
   case KIND_EXPR_UNOP:
-    break;
+    return -self->children[0]->u.value;
+
   case KIND_EXPR_BINOP:
-    break;
+    switch (self->u.op) {
+    case '+':
+      return self->children[0]->u.value + self->children[1]->u.value;
+    case '-':
+      return self->children[0]->u.value - self->children[1]->u.value;
+    case '/':
+      return self->children[0]->u.value / self->children[1]->u.value;
+    case '*':
+      return self->children[0]->u.value * self->children[1]->u.value;
+    case '^':
+      return pow(self->children[0]->u.value, self->children[1]->u.value);
+    } 
+    
   case KIND_EXPR_BLOCK:
-    break;
+    return self->children[0]->u.value;
+
   case KIND_EXPR_FUNC:
     switch (self->u.func) {
     case FUNC_SIN:
-      break;
+      return sin(self->children[0]->u.value);
+
     case FUNC_COS:
-      break;
+      return cos(self->children[0]->u.value);
+
     case FUNC_TAN:
-      break;
+      return tan(self->children[0]->u.value);
+
     case FUNC_SQRT:
-      break;
+      return sqrt(self->children[0]->u.value);
+
     case FUNC_RANDOM:
-      break;
+      double min = self->children[0]->u.value;
+      double max = self->children[1]->u.value;
+      return min + (rand() / (RAND_MAX / (max - min)));
     }
-    break;
   }
   if (self->next)
     ast_node_eval(self->next, ctx);

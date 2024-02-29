@@ -45,6 +45,8 @@
         "stdexcept": "c",
         "streambuf": "c",
         "cinttypes": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "hasmap.h": "c",
+        "assert.h": "c"
     }
 }

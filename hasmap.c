@@ -23,7 +23,7 @@ void hashmap_create(struct hashmap *self) {
   assert(self->bucket_array);
 }
 
-void hashtable_destroy(struct hashmap *self) {
+void hashmap_destroy(struct hashmap *self) {
   for (size_t i = 0; i < self->size; i++) {
     struct hashmap_bucket *b = self->bucket_array[i];
     while (b) {
@@ -80,7 +80,7 @@ bool hashmap_set(struct hashmap *self, char *key, void *data) {
   }
 }
 
-void **hashtable_get(const struct hashmap *self, const char *key) {
+void **hashmap_get(const struct hashmap *self, const char *key) {
   size_t hash = fnv1a_hash(key);
   size_t index = hash % self->size;
   struct hashmap_bucket *b = self->bucket_array[index];

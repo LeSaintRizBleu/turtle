@@ -67,7 +67,6 @@ struct ast_node {
   struct ast_node *next;                       // the next node in the sequence
 };
 
-// TODO: make some constructors to use in parser.y
 // for example:
 struct ast_node *make_expr_value(double value);
 struct ast_node *make_expr_name(char *name);
