@@ -198,7 +198,7 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
       ctx->x = 0;
       ctx->y = 0;
       ctx->angle = 0;
-      fprintf(stdout,"MoveTo %lf %lf\n", ctx->x, ctx->y);
+      fprintf(stdout, "MoveTo %lf %lf\n", ctx->x, ctx->y);
       break;
 
     case CMD_LEFT:
@@ -210,22 +210,26 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
       break;
 
     case CMD_FORWARD:
-      ctx->x = ctx->x + self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
-      ctx->y = ctx->y + self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
-      if(ctx->up){
-        fprintf(stdout,"LineTo %lf %lf\n", ctx->x, ctx->y);
+      ctx->x =
+          ctx->x + self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
+      ctx->y =
+          ctx->y + self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
+      if (ctx->up) {
+        fprintf(stdout, "LineTo %lf %lf\n", ctx->x, ctx->y);
       } else {
-        fprintf(stdout,"MoveTo %lf %lf\n", ctx->x, ctx->y);
+        fprintf(stdout, "MoveTo %lf %lf\n", ctx->x, ctx->y);
       }
       break;
 
     case CMD_BACKWARD:
-      ctx->x = ctx->x - self->children[0]->u.value * cos(ctx->angle * PI / 180.0); 
-      ctx->y = ctx->y - self->children[0]->u.value * cos(ctx->angle * PI / 180.0); 
-      if(ctx->up){
-        fprintf(stdout,"LineTo %lf %lf\n", ctx->x, ctx->y);
+      ctx->x =
+          ctx->x - self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
+      ctx->y =
+          ctx->y - self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
+      if (ctx->up) {
+        fprintf(stdout, "LineTo %lf %lf\n", ctx->x, ctx->y);
       } else {
-        fprintf(stdout,"MoveTo %lf %lf\n", ctx->x, ctx->y);
+        fprintf(stdout, "MoveTo %lf %lf\n", ctx->x, ctx->y);
       }
       break;
 
@@ -234,21 +238,22 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
       break;
 
     case CMD_PRINT:
-      fprintf(stderr,"%lf\n",self->children[0]->u.value);
+      fprintf(stderr, "%lf\n", self->children[0]->u.value);
       break;
 
     case CMD_POSITION:
       ctx->x = self->children[0]->u.value;
       ctx->y = self->children[1]->u.value;
-      if(ctx->up){
-        fprintf(stdout,"LineTo %lf %lf\n", ctx->x, ctx->y);
+      if (ctx->up) {
+        fprintf(stdout, "LineTo %lf %lf\n", ctx->x, ctx->y);
       } else {
-        fprintf(stdout,"MoveTo %lf %lf\n", ctx->x, ctx->y);
+        fprintf(stdout, "MoveTo %lf %lf\n", ctx->x, ctx->y);
       }
       break;
 
     case CMD_COLOR:
-      fprintf(stdout,"Color %lf %lf %lf\n",self->children[0]->u.value ,self->children[1]->u.value ,self->children[2]->u.value);
+      fprintf(stdout, "Color %lf %lf %lf\n", self->children[0]->u.value,
+              self->children[1]->u.value, self->children[2]->u.value);
       break;
     }
     break;
@@ -274,8 +279,8 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
       return self->children[0]->u.value * self->children[1]->u.value;
     case '^':
       return pow(self->children[0]->u.value, self->children[1]->u.value);
-    } 
-    
+    }
+
   case KIND_EXPR_BLOCK:
     return self->children[0]->u.value;
 
