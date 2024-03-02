@@ -143,8 +143,8 @@ expr:
   | '(' expr ')'                        { $$ = make_expr_block($2); }
   | expr '+' expr                       { $$ = make_expr_binop('+', $1, $3); }
   | expr '-' expr                       { $$ = make_expr_binop('-', $1, $3); }
-  | expr '*' expr                       { $$ = make_expr_binop('/', $1, $3); }
-  | expr '/' expr                       { $$ = make_expr_binop('*', $1, $3); }
+  | expr '*' expr                       { $$ = make_expr_binop('*', $1, $3); }
+  | expr '/' expr                       { $$ = make_expr_binop('/', $1, $3); }
   | expr '^' expr                       { $$ = make_expr_binop('^', $1, $3); }
   | KW_SIN '(' expr ')'                 { $$ = make_expr_func(FUNC_SIN, 1, (struct ast_node*[]){$3, NULL, NULL}); }
   | KW_COS '(' expr ')'                 { $$ = make_expr_func(FUNC_COS, 1, (struct ast_node*[]){$3, NULL, NULL}); }

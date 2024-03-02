@@ -151,8 +151,9 @@ void context_create(struct context *self) {
 double ast_node_eval(const struct ast_node *self, struct context *ctx) {
   switch (self->kind) {
   case KIND_CMD_SET: {
-    double val = ast_node_eval(self->children[0], ctx);
-    hashmap_set(&ctx->variables, self->u.name, *(void **)&val);
+    union hashmap_val_union val;
+    val.d = ast_node_eval(self->children[0], ctx);
+    hashmap_set(&ctx->variables, self->u.name, val);
     break;
   }
 
@@ -165,19 +166,21 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
   }
 
   case KIND_CMD_CALL: {
-    struct ast_node **proc =
-        (struct ast_node **)hashmap_get(&ctx->procedures, self->u.name);
+    union hashmap_val_union *proc = hashmap_get(&ctx->procedures, self->u.name);
     if (!proc) {
-      fprintf(stderr, "unknown procedure %s", self->u.name);
+      fprintf(stderr, "unknown procedure %s\n", self->u.name);
       exit(1);
     }
-    ast_node_eval(*proc, ctx);
+    ast_node_eval(proc->ast_node, ctx);
     break;
   }
 
-  case KIND_CMD_PROC:
-    hashmap_set(&ctx->procedures, self->u.name, *(void **)&self->children[0]);
+  case KIND_CMD_PROC: {
+    union hashmap_val_union val;
+    val.ast_node = self->children[0];
+    hashmap_set(&ctx->procedures, self->u.name, val);
     break;
+  }
 
   case KIND_CMD_BLOCK:
     // KESKESÉ ?
@@ -202,58 +205,60 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
       break;
 
     case CMD_LEFT:
-      ctx->angle += self->children[0]->u.value;
+      ctx->angle += ast_node_eval(self->children[0], ctx);
       break;
 
     case CMD_RIGHT:
-      ctx->angle -= self->children[0]->u.value;
+      ctx->angle -= ast_node_eval(self->children[0], ctx);
       break;
 
-    case CMD_FORWARD:
-      ctx->x =
-          ctx->x + self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
-      ctx->y =
-          ctx->y + self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
+    case CMD_FORWARD: {
+      double d = ast_node_eval(self->children[0], ctx);
+      ctx->x -= d * sin(ctx->angle * PI / 180.0);
+      ctx->y -= d * cos(ctx->angle * PI / 180.0);
       if (ctx->up) {
-        fprintf(stdout, "LineTo %lf %lf\n", ctx->x, ctx->y);
-      } else {
         fprintf(stdout, "MoveTo %lf %lf\n", ctx->x, ctx->y);
+      } else {
+        fprintf(stdout, "LineTo %lf %lf\n", ctx->x, ctx->y);
       }
       break;
+    }
 
-    case CMD_BACKWARD:
-      ctx->x =
-          ctx->x - self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
-      ctx->y =
-          ctx->y - self->children[0]->u.value * cos(ctx->angle * PI / 180.0);
+    case CMD_BACKWARD: {
+      double d = ast_node_eval(self->children[0], ctx);
+      ctx->x += d * sin(ctx->angle * PI / 180.0);
+      ctx->y += d * cos(ctx->angle * PI / 180.0);
       if (ctx->up) {
-        fprintf(stdout, "LineTo %lf %lf\n", ctx->x, ctx->y);
-      } else {
         fprintf(stdout, "MoveTo %lf %lf\n", ctx->x, ctx->y);
+      } else {
+        fprintf(stdout, "LineTo %lf %lf\n", ctx->x, ctx->y);
       }
       break;
+    }
 
     case CMD_HEADING:
-      ctx->angle = self->children[0]->u.value;
+      ctx->angle = ast_node_eval(self->children[0], ctx);
       break;
 
     case CMD_PRINT:
-      fprintf(stderr, "%lf\n", self->children[0]->u.value);
+      fprintf(stderr, "%lf\n", ast_node_eval(self->children[0], ctx));
       break;
 
     case CMD_POSITION:
-      ctx->x = self->children[0]->u.value;
-      ctx->y = self->children[1]->u.value;
+      ctx->x = ast_node_eval(self->children[0], ctx);
+      ctx->y = ast_node_eval(self->children[1], ctx);
       if (ctx->up) {
-        fprintf(stdout, "LineTo %lf %lf\n", ctx->x, ctx->y);
-      } else {
         fprintf(stdout, "MoveTo %lf %lf\n", ctx->x, ctx->y);
+      } else {
+        fprintf(stdout, "LineTo %lf %lf\n", ctx->x, ctx->y);
       }
       break;
 
     case CMD_COLOR:
-      fprintf(stdout, "Color %lf %lf %lf\n", self->children[0]->u.value,
-              self->children[1]->u.value, self->children[2]->u.value);
+      fprintf(stdout, "Color %lf %lf %lf\n",
+              ast_node_eval(self->children[0], ctx),
+              ast_node_eval(self->children[1], ctx),
+              ast_node_eval(self->children[2], ctx));
       break;
     }
     break;
@@ -261,47 +266,59 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
   case KIND_EXPR_VALUE:
     return self->u.value;
 
-  case KIND_EXPR_NAME:
-    break;
+  case KIND_EXPR_NAME: {
+    union hashmap_val_union *val = hashmap_get(&ctx->variables, self->u.name);
+    if (!val) {
+      fprintf(stderr, "unknown variable %s\n", self->u.name);
+      exit(1);
+    }
+    return val->d;
+  }
 
   case KIND_EXPR_UNOP:
-    return -self->children[0]->u.value;
+    return -ast_node_eval(self->children[0], ctx);
 
   case KIND_EXPR_BINOP:
     switch (self->u.op) {
     case '+':
-      return self->children[0]->u.value + self->children[1]->u.value;
+      return ast_node_eval(self->children[0], ctx) +
+             ast_node_eval(self->children[1], ctx);
     case '-':
-      return self->children[0]->u.value - self->children[1]->u.value;
+      return ast_node_eval(self->children[0], ctx) -
+             ast_node_eval(self->children[1], ctx);
     case '/':
-      return self->children[0]->u.value / self->children[1]->u.value;
+      return ast_node_eval(self->children[0], ctx) /
+             ast_node_eval(self->children[1], ctx);
     case '*':
-      return self->children[0]->u.value * self->children[1]->u.value;
+      return ast_node_eval(self->children[0], ctx) *
+             ast_node_eval(self->children[1], ctx);
     case '^':
-      return pow(self->children[0]->u.value, self->children[1]->u.value);
+      return pow(ast_node_eval(self->children[0], ctx),
+                 ast_node_eval(self->children[1], ctx));
     }
 
   case KIND_EXPR_BLOCK:
-    return self->children[0]->u.value;
+    return ast_node_eval(self->children[0], ctx);
 
   case KIND_EXPR_FUNC:
     switch (self->u.func) {
     case FUNC_SIN:
-      return sin(self->children[0]->u.value);
+      return sin(ast_node_eval(self->children[0], ctx));
 
     case FUNC_COS:
-      return cos(self->children[0]->u.value);
+      return cos(ast_node_eval(self->children[0], ctx));
 
     case FUNC_TAN:
-      return tan(self->children[0]->u.value);
+      return tan(ast_node_eval(self->children[0], ctx));
 
     case FUNC_SQRT:
-      return sqrt(self->children[0]->u.value);
+      return sqrt(ast_node_eval(self->children[0], ctx));
 
-    case FUNC_RANDOM:
-      double min = self->children[0]->u.value;
-      double max = self->children[1]->u.value;
+    case FUNC_RANDOM: {
+      double min = ast_node_eval(self->children[0], ctx);
+      double max = ast_node_eval(self->children[1], ctx);
       return min + (rand() / (RAND_MAX / (max - min)));
+    }
     }
   }
   if (self->next)

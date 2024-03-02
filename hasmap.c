@@ -36,7 +36,8 @@ void hashmap_destroy(struct hashmap *self) {
   free(self->bucket_array);
 }
 
-bool hashmap_set(struct hashmap *self, char *key, void *data) {
+bool hashmap_set(struct hashmap *self, char *key,
+                 union hashmap_val_union data) {
   if (self->count + 1 >= self->size) {
     // rehash
     size_t old_size = self->size;
@@ -81,7 +82,8 @@ bool hashmap_set(struct hashmap *self, char *key, void *data) {
   }
 }
 
-void **hashmap_get(const struct hashmap *self, const char *key) {
+union hashmap_val_union *hashmap_get(const struct hashmap *self,
+                                     const char *key) {
   size_t hash = fnv1a_hash(key);
   size_t index = hash % self->size;
   struct hashmap_bucket *b = self->bucket_array[index];
