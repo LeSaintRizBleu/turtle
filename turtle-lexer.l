@@ -62,7 +62,7 @@ SQRT3                 { return KW_SQRT3; }
 "}"                   { return '}'; }
 ","                   { return ','; }
 
-{COMMENT}             { yylval.name = strdup(yytext); return COMMENT; }
+{COMMENT}             /* */
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
 {VAR_NAME}            { yylval.name = strdup(yytext); return NAME; }
 

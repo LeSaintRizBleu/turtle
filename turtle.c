@@ -26,7 +26,12 @@ int main() {
   // ast_print(&root);
   ast_eval(&root, &ctx);
 
+  if (ctx.error) {
+    ret = 1;
+  }
+
   ast_destroy(&root);
+  context_destroy(&ctx);
 
   return ret;
 }

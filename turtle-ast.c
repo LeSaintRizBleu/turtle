@@ -116,6 +116,10 @@ struct ast_node *make_cmd_repeat(struct ast_node *count,
 }
 
 void ast_node_destroy(struct ast_node *self) {
+  if (self->kind == KIND_CMD_PROC || self->kind == KIND_CMD_SET ||
+      self->kind == KIND_CMD_CALL || self->kind == KIND_EXPR_NAME) {
+    free(self->u.name);
+  }
   for (size_t i = 0; i < self->children_count; ++i) {
     ast_node_destroy(self->children[i]);
     free(self->children[i]);
@@ -142,6 +146,12 @@ void context_create(struct context *self) {
   self->y = 0;
   self->up = false;
   self->angle = 0;
+  self->error = false;
+}
+
+void context_destroy(struct context *self) {
+  hashmap_destroy(&self->variables);
+  hashmap_destroy(&self->procedures);
 }
 
 /*
@@ -153,14 +163,20 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
   case KIND_CMD_SET: {
     union hashmap_val_union val;
     val.d = ast_node_eval(self->children[0], ctx);
+    if (ctx->error)
+      return NAN;
     hashmap_set(&ctx->variables, self->u.name, val);
     break;
   }
 
   case KIND_CMD_REPEAT: {
     int val = ast_node_eval(self->children[0], ctx);
+    if (ctx->error)
+      return NAN;
     for (int i = 0; i < val; ++i) {
       ast_node_eval(self->children[1], ctx);
+      if (ctx->error)
+        return NAN;
     }
     break;
   }
@@ -169,9 +185,12 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
     union hashmap_val_union *proc = hashmap_get(&ctx->procedures, self->u.name);
     if (!proc) {
       fprintf(stderr, "unknown procedure %s\n", self->u.name);
-      exit(1);
+      ctx->error = true;
+      return NAN;
     }
     ast_node_eval(proc->ast_node, ctx);
+    if (ctx->error)
+      return NAN;
     break;
   }
 
@@ -206,14 +225,20 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
 
     case CMD_LEFT:
       ctx->angle += ast_node_eval(self->children[0], ctx);
+      if (ctx->error)
+        return NAN;
       break;
 
     case CMD_RIGHT:
       ctx->angle -= ast_node_eval(self->children[0], ctx);
+      if (ctx->error)
+        return NAN;
       break;
 
     case CMD_FORWARD: {
       double d = ast_node_eval(self->children[0], ctx);
+      if (ctx->error)
+        return NAN;
       ctx->x -= d * sin(ctx->angle * PI / 180.0);
       ctx->y -= d * cos(ctx->angle * PI / 180.0);
       if (ctx->up) {
@@ -226,6 +251,8 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
 
     case CMD_BACKWARD: {
       double d = ast_node_eval(self->children[0], ctx);
+      if (ctx->error)
+        return NAN;
       ctx->x += d * sin(ctx->angle * PI / 180.0);
       ctx->y += d * cos(ctx->angle * PI / 180.0);
       if (ctx->up) {
@@ -238,15 +265,23 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
 
     case CMD_HEADING:
       ctx->angle = ast_node_eval(self->children[0], ctx);
+      if (ctx->error)
+        return NAN;
       break;
 
     case CMD_PRINT:
       fprintf(stderr, "%lf\n", ast_node_eval(self->children[0], ctx));
+      if (ctx->error)
+        return NAN;
       break;
 
     case CMD_POSITION:
       ctx->x = ast_node_eval(self->children[0], ctx);
+      if (ctx->error)
+        return NAN;
       ctx->y = ast_node_eval(self->children[1], ctx);
+      if (ctx->error)
+        return NAN;
       if (ctx->up) {
         fprintf(stdout, "MoveTo %lf %lf\n", ctx->x, ctx->y);
       } else {
@@ -254,12 +289,19 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
       }
       break;
 
-    case CMD_COLOR:
-      fprintf(stdout, "Color %lf %lf %lf\n",
-              ast_node_eval(self->children[0], ctx),
-              ast_node_eval(self->children[1], ctx),
-              ast_node_eval(self->children[2], ctx));
+    case CMD_COLOR: {
+      double r = ast_node_eval(self->children[0], ctx);
+      if (ctx->error)
+        return NAN;
+      double g = ast_node_eval(self->children[1], ctx);
+      if (ctx->error)
+        return NAN;
+      double b = ast_node_eval(self->children[2], ctx);
+      if (ctx->error)
+        return NAN;
+      fprintf(stdout, "Color %lf %lf %lf\n", r, g, b);
       break;
+    }
     }
     break;
 
@@ -270,7 +312,8 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
     union hashmap_val_union *val = hashmap_get(&ctx->variables, self->u.name);
     if (!val) {
       fprintf(stderr, "unknown variable %s\n", self->u.name);
-      exit(1);
+      ctx->error = true;
+      return NAN;
     }
     return val->d;
   }
@@ -278,24 +321,26 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
   case KIND_EXPR_UNOP:
     return -ast_node_eval(self->children[0], ctx);
 
-  case KIND_EXPR_BINOP:
+  case KIND_EXPR_BINOP: {
+    double rhs = ast_node_eval(self->children[0], ctx);
+    if (ctx->error)
+      return NAN;
+    double lhs = ast_node_eval(self->children[1], ctx);
+    if (ctx->error)
+      return NAN;
     switch (self->u.op) {
     case '+':
-      return ast_node_eval(self->children[0], ctx) +
-             ast_node_eval(self->children[1], ctx);
+      return rhs + lhs;
     case '-':
-      return ast_node_eval(self->children[0], ctx) -
-             ast_node_eval(self->children[1], ctx);
+      return rhs - lhs;
     case '/':
-      return ast_node_eval(self->children[0], ctx) /
-             ast_node_eval(self->children[1], ctx);
+      return rhs / lhs;
     case '*':
-      return ast_node_eval(self->children[0], ctx) *
-             ast_node_eval(self->children[1], ctx);
+      return rhs * lhs;
     case '^':
-      return pow(ast_node_eval(self->children[0], ctx),
-                 ast_node_eval(self->children[1], ctx));
+      return pow(rhs, lhs);
     }
+  }
 
   case KIND_EXPR_BLOCK:
     return ast_node_eval(self->children[0], ctx);
@@ -311,12 +356,30 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
     case FUNC_TAN:
       return tan(ast_node_eval(self->children[0], ctx));
 
-    case FUNC_SQRT:
-      return sqrt(ast_node_eval(self->children[0], ctx));
+    case FUNC_SQRT: {
+      double x = ast_node_eval(self->children[0], ctx);
+      if (ctx->error)
+        return NAN;
+      if (x < 0) {
+        fprintf(stderr, "can't take sqare root of negative number %lf\n", x);
+        ctx->error = true;
+        return NAN;
+      }
+      return sqrt(x);
+    }
 
     case FUNC_RANDOM: {
       double min = ast_node_eval(self->children[0], ctx);
+      if (ctx->error)
+        return NAN;
       double max = ast_node_eval(self->children[1], ctx);
+      if (ctx->error)
+        return NAN;
+      if (min >= max || isnan(min) || isnan(max)) {
+        fprintf(stderr, "invalid interval [%lf ; %lf]\n", min, max);
+        ctx->error = true;
+        return NAN;
+      }
       return min + (rand() / (RAND_MAX / (max - min)));
     }
     }

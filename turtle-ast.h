@@ -98,6 +98,7 @@ struct context {
   double y;
   double angle;
   bool up;
+  bool error;
 
   struct hashmap procedures;
   struct hashmap variables;
