@@ -94,8 +94,9 @@ cmd:
 
   | KW_SET NAME expr                    { $$ = make_cmd_set($2, $3); }
   | KW_CALL NAME                        { $$ = make_cmd_call($2); }
-  | KW_PROC NAME '{' cmds '}'           { $$ = make_cmd_proc($2, $4); }
-  | KW_REPEAT expr '{' cmds '}'         { $$ = make_cmd_repeat($2, $4); }
+  | KW_PROC NAME  cmd                   { $$ = make_cmd_proc($2, $3); }
+  | KW_REPEAT expr cmd                  { $$ = make_cmd_repeat($2, $3); }
+  | '{' cmds '}'                        { $$ = make_cmd_block($2); }
 
   | KW_COLOR expr ',' expr ',' expr     { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){$2, $4, $6}); }
   | KW_COLOR KW_RED                     { $$ = make_cmd_simple(CMD_COLOR, 3, (struct ast_node*[]){

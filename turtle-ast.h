@@ -83,6 +83,7 @@ struct ast_node *make_cmd_proc(char *name, struct ast_node *child);
 struct ast_node *make_cmd_call(char *name);
 struct ast_node *make_cmd_repeat(struct ast_node *count,
                                  struct ast_node *block);
+struct ast_node *make_cmd_block(struct ast_node *block);
 
 // root of the abstract syntax tree
 struct ast {

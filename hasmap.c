@@ -18,7 +18,7 @@ size_t fnv1a_hash(const char *key) {
 }
 
 void hashmap_create(struct hashmap *self) {
-  self->size = 2;
+  self->size = 1;
   self->count = 0;
   self->bucket_array = calloc(self->size, sizeof(struct hashmap_bucket *));
   assert(self->bucket_array);

@@ -105,13 +105,20 @@ struct ast_node *make_cmd_call(char *name) {
   return node;
 }
 
-struct ast_node *make_cmd_repeat(struct ast_node *count,
-                                 struct ast_node *block) {
+struct ast_node *make_cmd_repeat(struct ast_node *count, struct ast_node *cmd) {
   struct ast_node *node = calloc(1, sizeof(struct ast_node));
   node->kind = KIND_CMD_REPEAT;
   node->children_count = 2;
   node->children[0] = count;
-  node->children[1] = block;
+  node->children[1] = cmd;
+  return node;
+}
+
+struct ast_node *make_cmd_block(struct ast_node *block) {
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_BLOCK;
+  node->children_count = 1;
+  node->children[0] = block;
   return node;
 }
 
@@ -202,7 +209,7 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
   }
 
   case KIND_CMD_BLOCK:
-    // KESKESÉ ?
+    ast_node_eval(self->children[0], ctx);
     break;
 
   case KIND_CMD_SIMPLE:
@@ -406,20 +413,20 @@ void ast_node_print(const struct ast_node *self) {
   case KIND_CMD_REPEAT:
     printf("repeat ");
     ast_node_print(self->children[0]);
-    printf(" {\n");
+    printf(" ");
     ast_node_print(self->children[1]);
-    printf("}\n");
     break;
   case KIND_CMD_CALL:
     printf("call %s\n", self->u.name);
     break;
   case KIND_CMD_PROC:
-    printf("proc %s {\n", self->u.name);
+    printf("proc %s ", self->u.name);
     ast_node_print(self->children[0]);
-    printf("}\n");
     break;
   case KIND_CMD_BLOCK:
-    printf("KESKESÉ ?\n");
+    printf("{\n");
+    ast_node_print(self->children[0]);
+    printf("}\n");
     break;
   case KIND_CMD_SIMPLE:
     switch (self->u.cmd) {
