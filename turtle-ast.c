@@ -341,6 +341,11 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
     case '-':
       return rhs - lhs;
     case '/':
+      if (lhs==0){
+        fprintf(stderr, "You can't divide by 0");
+        ctx->error = true;
+        return NAN;
+      }
       return rhs / lhs;
     case '*':
       return rhs * lhs;
@@ -361,14 +366,23 @@ double ast_node_eval(const struct ast_node *self, struct context *ctx) {
       return cos(ast_node_eval(self->children[0], ctx));
 
     case FUNC_TAN:
-      return tan(ast_node_eval(self->children[0], ctx));
+      double x = ast_node_eval(self->children[0], ctx);
+      if (ctx->error)
+        return NAN;
+      double res = tan(x);
+      if (isnan(res)) {
+        fprintf(stderr, "can't tan a multiple of pi/2 : %lf\n", x);
+        ctx->error = true;
+        return NAN;
+      }
+      return res;
 
     case FUNC_SQRT: {
       double x = ast_node_eval(self->children[0], ctx);
       if (ctx->error)
         return NAN;
       if (x < 0) {
-        fprintf(stderr, "can't take sqare root of negative number %lf\n", x);
+        fprintf(stderr, "can't take sqare root of negative number : %lf\n", x);
         ctx->error = true;
         return NAN;
       }
