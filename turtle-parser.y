@@ -65,8 +65,8 @@ void yyerror(struct ast *ret, const char *);
 
 %left '+' '-'
 %left '*' '/'
+%right '^'
 %left UNARY_MINUS
-%left '^'
 
 %%
 
